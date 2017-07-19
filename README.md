@@ -16,6 +16,6 @@ _Requires Python3 and the following libraries: pandas, matplotlib, BeautifulSoup
 
 ## Screenshots:
 
-![Subject Graph](https://i.imgur.com/sHZ7B8B.jpg)
+![Subject Graph](https://i.imgur.com/Vqu8v8y.jpg)
 
 ![Arrear Pie Chart](https://i.imgur.com/aJSNY9W.jpg)

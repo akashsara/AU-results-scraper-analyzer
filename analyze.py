@@ -2,6 +2,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def makeArrearChart(data, title):
     #Draw chart
@@ -20,12 +21,17 @@ def makeArrearChart(data, title):
 
 def makeBar(data, title):
     #Draw chart
-    data = data[title].value_counts()
-    data.plot(kind='barh', title=title)
-    #Add raw values
-    for i, v in enumerate(data):
-        plt.text(v + 0.5, i - 0.05, str(v), color='black', fontweight='bold', fontsize=12)
-    #Apply proper spacing and save
+    data = data[title].sort_values()
+    #Using seaborn for plotting
+    ax = sns.countplot(x=data.index, data=data)
+    #To get absolute values for each grade
+    for p in ax.patches:
+        height = p.get_height()
+        ax.text(p.get_x() + p.get_width()/2.,
+                height + 0.5,
+                '{:1}'.format(int(height)),
+                ha="center")
+
     plt.tight_layout()
     plt.savefig(title + '.jpg')
     plt.close()
@@ -43,3 +49,5 @@ def runAnalysis():
     for title in titles[1:]:
         print('Generating graph for %s.' %title)
         makeBar(data, title)
+
+runAnalysis()
