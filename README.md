@@ -6,7 +6,7 @@ It's a script that scrapes the results of all students in the given range of reg
 
 ## Setup & Usage:
 
-_Requires Python3 and the following libraries: pandas, matplotlib, BeautifulSoup4 and Requests_
+_Requires Python3 and the following libraries: pandas, matplotlib, seaborn, BeautifulSoup4 and Requests_
 
 1. Edit `scrape.py` with the starting and ending register numbers as well as the subjects to scrape. Make sure that the subjects are in the same order as the results.
 
