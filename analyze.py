@@ -25,6 +25,7 @@ def makeBar(data, title):
     #Using seaborn for plotting
     ax = sns.countplot(x=data.index, data=data)
     #To get absolute values for each grade
+
     for p in ax.patches:
         height = p.get_height()
         ax.text(p.get_x() + p.get_width()/2.,
@@ -37,17 +38,9 @@ def makeBar(data, title):
     plt.close()
 
 def runAnalysis():
-    data = pd.read_csv('data.csv')
+    results = pd.read_csv('AU Results.csv')
     #Ignores register no. and name columns
-    data = data.iloc[:, 2:]
-
-    titles = list(data)
-
-    print('Generating graph for %s.' %titles[0])
-    makeArrearChart(data, titles[0])
-
-    for title in titles[1:]:
-        print('Generating graph for %s.' %title)
-        makeBar(data, title)
+    results = results.iloc[:, 2:]
+    titles = list(results)
 
 runAnalysis()

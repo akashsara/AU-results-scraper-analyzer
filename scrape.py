@@ -44,11 +44,11 @@ def scrapeData(reg):
         print('Could not connect to Anna University server.')
 
 #Remove old data files
-if os.path.isfile('data.csv'):
-    os.unlink('data.csv')
+if os.path.isfile('AU Results.csv'):
+    os.unlink('AU Results.csv')
 
 #Create new file and set up a writer
-dataFile = open('data.csv', 'w', newline='')
+dataFile = open('AU Results.csv', 'w', newline='')
 writer = csv.writer(dataFile)
 writer.writerow(['Register No.', 'Name', 'Arrears'] + subjectList)
 
