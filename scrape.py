@@ -1,45 +1,55 @@
 #!python3
-import os, re, requests, csv, bs4, analyze
+import os
+import re
+import requests
+import csv
+import bs4
+import analyze
 
 url = r'http://aucoe.annauniv.edu/cgi-bin/result/cgrade.pl?regno='
 
-#Starting and ending register numbers for normal students and lateral entries. A list of debarred students if applicable
-startNo = 0
-endNo = 0
-latStart = 0
-latEnd = 0
-debarList = [0,0,0]
-#Subjects for the semester. Make sure this is in the order in which the results are announced.
-subjectCodes = ['CS6401', 'CS6402', 'CS6403', 'CS6411', 'CS6412', 'CS6413', 'CS6551', 'EC6504', 'MA6453']
-#This is for the title of columns in the csv and the title of each chart. You can rename it as you like
-subjectList = ['CS6401 - Operating Systems', 'CS6402 - Design & Analysis of Algorithms', 'CS6403 - Software Engineering', 'CS6411 - Networks Laboratory', 'CS6412 - Microprocessor & Microcontroller Laboratory', 'CS6413 - Operating Systems Laboratory', 'CS6551 - Computer Networks', 'EC6504 - Microprocessor & Microcontroller', 'MA6453 - Probability & Queueing Theory']
+# Starting and ending register numbers for normal students and lateral entries. A list of debarred students if applicable
+start_number = 0
+end_number = 0
+lateral_start = 0
+lateral_end = 0
+debar_list = []
+
+subject_list = []
+student_data = {}
 
 def scrapeData(reg):
-    #Get page
     try:
+        # Get page
         response = requests.get(url + str(reg))
         response.raise_for_status()
-        print('Scraping %s.' %reg)
 
-        #Parse page and get relevant data
-        data = bs4.BeautifulSoup(response.text, "html.parser")
-        studentInfo = data.select('tr td strong')
+        # Parse page and get relevant data
+        response_data = bs4.BeautifulSoup(response.text, "html.parser")
+        student_info = response_data.select('tr td strong')
 
-        #Set up mark list and no. of arrears and begin data collection
-        markList = []
-        noArrears = 0
-        regNo = studentInfo[0].getText()
-        name = studentInfo[1].getText()
+        # Set up mark list and no. of arrears and begin data collection
+        number_of_arrears = 0
+        register_number = student_info[0].getText()
+        name = student_info[1].getText()
+        mark_list = {'Name': name}
 
-        for i in range(6, len(studentInfo), 3):
-            sub = studentInfo[i].getText()
-            if sub in subjectCodes:
-                grade = studentInfo[i + 1].getText()
-                result = studentInfo[i + 2].getText().strip()
-                if(result != 'PASS'):
-                    noArrears += 1
-                markList.append(grade)
-        writer.writerow([regNo, name, noArrears] + markList)
+        # Get the grade, pass/fail for each subject
+        for i in range(6, len(student_info), 3):
+            sub = student_info[i].getText()
+            grade = student_info[i + 1].getText()
+            result = student_info[i + 2].getText().strip()
+            mark_list[sub] = grade
+            if(result != 'PASS'):
+                number_of_arrears += 1
+            if sub not in subject_list:
+                subject_list.append(sub)
+        
+        print(register_number + '\t\t' + mark_list['Name'])
+
+        # Add number of arrears to the student's information and add the entire information to student_data
+        mark_list['Arrears'] = number_of_arrears
+        student_data[register_number] = mark_list
     except TimeoutError:
         print('Could not connect to Anna University server.')
 
@@ -47,24 +57,34 @@ def scrapeData(reg):
 if os.path.isfile('AU Results.csv'):
     os.unlink('AU Results.csv')
 
-#Create new file and set up a writer
-dataFile = open('AU Results.csv', 'w', newline='')
-writer = csv.writer(dataFile)
-writer.writerow(['Register No.', 'Name', 'Arrears'] + subjectList)
+print("Connecting...")
 
 #Run for normal students
-for i in range(startNo, endNo):
-    if i in debarList:
+for i in range(start_number, end_number):
+    if i in debar_list:
         continue
     scrapeData(i)
 
 #Run for lateral entries
-for i in range(latStart, latEnd):
-    if i in debarList:
+for i in range(lateral_start, lateral_end):
+    if i in debar_list:
         continue
     scrapeData(i)
 
-print('Done!')
+print('Done scraping! Writing to file..')
+
+#Create new file and set up a writer
+dataFile = open('AU Results.csv', 'w', newline='')
+writer = csv.writer(dataFile)
+writer.writerow(['Register Number', 'Name', 'Arrears'] + subject_list)
+for data in student_data:
+    results_data = []
+    for subject in subject_list:
+        if subject in student_data[data].keys():
+            results_data.append(student_data[data][subject])
+        else:
+            results_data.append('')
+    writer.writerow([data, student_data[data]['Name'], student_data[data]['Arrears']] + results_data)
 dataFile.close()
 
 #Analysis
