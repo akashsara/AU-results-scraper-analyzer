@@ -38,9 +38,10 @@ def makeBar(data, title):
     plt.close()
 
 def runAnalysis():
-    results = pd.read_csv('AU Results.csv')
-    #Ignores register no. and name columns
-    results = results.iloc[:, 2:]
-    titles = list(results)
-
-runAnalysis()
+	if os.path.isfile('AU Results.csv'):
+		results = pd.read_csv('AU Results.csv')
+		#Ignores register no. and name columns
+		results = results.iloc[:, 2:]
+		titles = list(results)
+	else:
+		print("Error! Could not find results to analyze!")

@@ -19,39 +19,41 @@ subject_list = []
 student_data = {}
 
 def scrapeData(reg):
-    try:
-        # Get page
-        response = requests.get(url + str(reg))
-        response.raise_for_status()
+	try:
+		# Get page
+		response = requests.get(url + str(reg))
+		response.raise_for_status()
 
-        # Parse page and get relevant data
-        response_data = bs4.BeautifulSoup(response.text, "html.parser")
-        student_info = response_data.select('tr td strong')
+		# Parse page and get relevant data
+		response_data = bs4.BeautifulSoup(response.text, "html.parser")
+		student_info = response_data.select('tr td strong')
 
-        # Set up mark list and no. of arrears and begin data collection
-        number_of_arrears = 0
-        register_number = student_info[0].getText()
-        name = student_info[1].getText()
-        mark_list = {'Name': name}
+		# Set up mark list and no. of arrears and begin data collection
+		number_of_arrears = 0
+		register_number = student_info[0].getText()
+		name = student_info[1].getText()
+		mark_list = {'Name': name}
 
-        # Get the grade, pass/fail for each subject
-        for i in range(6, len(student_info), 3):
-            sub = student_info[i].getText()
-            grade = student_info[i + 1].getText()
-            result = student_info[i + 2].getText().strip()
-            mark_list[sub] = grade
-            if(result != 'PASS'):
-                number_of_arrears += 1
-            if sub not in subject_list:
-                subject_list.append(sub)
-        
-        print(register_number + '\t\t' + mark_list['Name'])
+		# Get the grade, pass/fail for each subject
+		for i in range(6, len(student_info), 3):
+			sub = student_info[i].getText()
+			grade = student_info[i + 1].getText()
+			result = student_info[i + 2].getText().strip()
+			mark_list[sub] = grade
+			if(result != 'PASS'):
+				number_of_arrears += 1
+			if sub not in subject_list:
+				subject_list.append(sub)
+		
+		print(register_number + '\t\t' + mark_list['Name'])
 
-        # Add number of arrears to the student's information and add the entire information to student_data
-        mark_list['Arrears'] = number_of_arrears
-        student_data[register_number] = mark_list
-    except TimeoutError:
-        print('Could not connect to Anna University server.')
+		# Add number of arrears to the student's information and add the entire information to student_data
+		mark_list['Arrears'] = number_of_arrears
+		student_data[register_number] = mark_list
+	except TimeoutError:
+		print('Could not connect to Anna University server.')
+	except Exception as e:
+		print(e)
 
 #Remove old data files
 if os.path.isfile('AU Results.csv'):
