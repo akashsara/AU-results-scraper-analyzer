@@ -4,22 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def makeArrearChart(data, title):
-    print("Generating chart for " + title)
-	#Draw chart
-    data = data[title].value_counts()
-    data.plot(kind='pie', autopct='%1.0f%%', title=title, shadow=True, startangle=90, labels=None)
-    #Remove labels
-    plt.axes().set_ylabel('')
-    plt.axes().set_xlabel('')
-    #Add legend
-    labels = [str(i) + ' Arrears: ' + str(data[i]) for i in data.index]
-    plt.legend(labels=labels, loc="best")
-    #Apply proper spacing and save
-    plt.tight_layout()
-    plt.savefig(title + '.jpg')
-    plt.close()
-
 def makeBar(data, title):
     print("Generating chart for " + title)
 	#Draw chart
@@ -45,8 +29,8 @@ def runAnalysis():
 		#Ignores register no. and name columns
 		results = results.iloc[:, 2:]
 		titles = list(results)
-		makeArrearChart(results, titles[0])
-		for title in titles[1:]:
+		#makeArrearChart(results, titles[0])
+		for title in titles:
 			makeBar(results, title)
 	else:
 		print("Error! Could not find results to analyze!")
